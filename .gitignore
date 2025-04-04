@@ -126,7 +126,6 @@ dmypy.json
 .pyre/
 
 # Poetry
-poetry.lock
 .pdm.toml
 # poetry export files
 requirements.txt 

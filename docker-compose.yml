@@ -9,11 +9,10 @@ services:
       - .env
     volumes:
       - ./app:/app/app # Монтируем код приложения для разработки
+    restart: unless-stopped
+    networks:
+      - postgre-network
 
-# Если бы у нас была локальная база данных, ее конфигурация была бы здесь:
-# volumes:
-#   postgres_data:
-
-# networks:
-#   default:
-#     driver: bridge 
+networks:
+  postgre-network:
+    external: true

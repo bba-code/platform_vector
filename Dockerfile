@@ -11,7 +11,7 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock ./
 
 # Устанавливаем зависимости проекта, не включая dev зависимости
-RUN poetry config virtualenvs.create false && poetry install --no-root --no-dev
+RUN poetry config virtualenvs.create false && poetry install --no-root --without dev
 
 # Копируем остальную часть приложения
 COPY ./app /app/app

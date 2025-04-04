@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8020:8020"
+    env_file:
+      - .env
+    volumes:
+      - ./app:/app/app # Монтируем код приложения для разработки
+
+# Если бы у нас была локальная база данных, ее конфигурация была бы здесь:
+# volumes:
+#   postgres_data:
+
+# networks:
+#   default:
+#     driver: bridge 

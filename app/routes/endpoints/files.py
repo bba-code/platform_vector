@@ -20,9 +20,10 @@ router = APIRouter()
 #     message: str
 
 @router.post("/", response_model=schemas.response.SetFileResponse)
-def set_file( # Renamed from get_ai_response for clarity
-    *, # Делает все параметры query parameters именованными
+def set_openai_file(
+    *, 
     db: Session = Depends(get_db),
+    # Добавляем Depends() обратно, чтобы FastAPI искал параметры в query/form
     request: schemas.request.SetFileRequest = Depends()
 ) -> schemas.response.SetFileResponse:
 

@@ -3,7 +3,7 @@ import logging
 import os
 from dotenv import load_dotenv
 import time
-from typing import Optional
+from typing import Optional, List
 
 # Загружаем переменные окружения из .env файла
 load_dotenv()
@@ -150,6 +150,80 @@ def get_prompt_response(prompt: str, vector_store_id: str):
     except Exception as e:
         logger.error(f"Ошибка при вызове OpenAI API (метод responses.create): {e}")
         raise
+
+def get_embedding(text: str, model: str = "text-embedding-3-small") -> Optional[List[float]]:
+    """
+    Генерирует векторное представление (эмбеддинг) для заданного текста.
+
+    Args:
+        text: Текст для генерации эмбеддинга.
+        model: Модель для генерации эмбеддингов (по умолчанию 'text-embedding-3-small').
+
+    Returns:
+        Список чисел (float), представляющий эмбеддинг текста, или None при ошибке.
+    """
+    client = get_openai_client()
+    if not text or not text.strip():
+        logger.warning("Получен пустой текст для генерации эмбеддинга.")
+        return None
+    
+    try:
+        # Заменяем символы новой строки, т.к. OpenAI их не рекомендует в эмбеддингах
+        text = text.replace("\n", " ")
+        response = client.embeddings.create(input=[text], model=model) 
+        
+        # Извлекаем эмбеддинг из ответа
+        if response and response.data and len(response.data) > 0:
+            embedding = response.data[0].embedding
+            logger.info(f"Сгенерирован эмбеддинг размерности {len(embedding)} для текста: '{text[:50]}...' моделью {model}")
+            return embedding
+        else:
+            logger.error(f"Не удалось получить данные эмбеддинга из ответа OpenAI API для модели {model}.")
+            return None
+    except Exception as e:
+        logger.exception(f"Ошибка при генерации эмбеддинга для текста '{text[:50]}...' моделью {model}: {e}")
+        return None
+
+def get_prompt_response2(prompt: str, model: str = "gpt-4o-mini") -> Optional[str]:
+    """
+    Генерирует ответ на промпт с использованием модели чата OpenAI.
+
+    Args:
+        prompt: Текст запроса для модели.
+        model: Модель чата для использования (по умолчанию 'gpt-4o-mini').
+
+    Returns:
+        Строка с ответом от модели или None при ошибке.
+    """
+    client = get_openai_client()
+    system_instruction = "Ты — полезный ассистент. Отвечай на основе предоставленного контекста." # Можно адаптировать
+    
+    try:
+        logger.info(f"Запрос к модели {model} с промптом: '{prompt[:100]}...'")
+        
+        completion = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_instruction},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        
+        if completion.choices and len(completion.choices) > 0:
+            assistant_response = completion.choices[0].message.content
+            logger.info(f"Получен ответ от модели {model}.")
+            if assistant_response:
+                 return assistant_response.strip()
+            else:
+                 logger.warning(f"Модель {model} вернула пустой ответ.")
+                 return None
+        else:
+            logger.error(f"Не удалось получить ответ от модели {model}. Ответ API не содержит choices.")
+            return None
+
+    except Exception as e:
+        logger.exception(f"Ошибка при вызове OpenAI Chat Completions API (модель {model}): {e}")
+        return None
 
 
 

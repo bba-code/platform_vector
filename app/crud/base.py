@@ -32,6 +32,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = jsonable_encoder(obj_in)
+        # obj_in_data = obj_in.dict() # Pydantic V1
+        obj_in_data = obj_in.model_dump() # Pydantic V2
         db_obj = self.model(**obj_in_data)
         db.add(db_obj)
         db.commit()
@@ -45,8 +47,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
-            update_data = obj_in.dict(exclude_unset=True) # Pydantic V1
-            # update_data = obj_in.model_dump(exclude_unset=True) # Pydantic V2
+            # update_data = obj_in.dict(exclude_unset=True) # Pydantic V1
+            update_data = obj_in.model_dump(exclude_unset=True) # Pydantic V2
 
         for field in obj_data:
             if field in update_data:

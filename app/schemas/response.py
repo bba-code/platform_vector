@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 from app.schemas.message import Message
 
@@ -24,3 +24,14 @@ class ErrorResponse(BaseModel):
 # Схема ответа для эндпоинта промпта
 class PromptResponse(BaseModel):
     ai_response: Optional[str] = None # Текст ответа от AI или None при ошибке 
+
+# Схема ответа для обработки файла (чанкинг + эмбеддинг)
+class ProcessFileResponse(BaseModel):
+    file_id: int # ID созданного файла в таблице files2
+    chunks_count: int # Количество созданных чанков
+    message: str 
+
+# Схема ответа для поиска по чанкам
+class MessagePGResponse(BaseModel):
+    ai_response: Optional[str] = None
+    retrieved_chunks_count: int = 0 

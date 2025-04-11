@@ -15,3 +15,11 @@ class MessageRequestParams(BaseModel):
     # Поэтому отдельная схема для тела запроса GET не нужна
     # Определим их прямо в эндпоинте
     pass 
+
+# Схема запроса для обработки файла (чанкинг + эмбеддинг)
+class ProcessFileRequest(BaseModel):
+    text: str 
+
+# Схема запроса для поиска по чанкам и генерации ответа
+class MessagePGRequest(BaseModel):
+    query_text: str 
